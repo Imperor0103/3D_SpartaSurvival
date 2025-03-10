@@ -28,6 +28,13 @@ public class PlayerController : MonoBehaviour
     public float lookSensitivity;  // 회전의 민감도
     private Vector2 mouseDelta;     // 마우스의 delta값
 
+    [Header("Camera Control")]
+    public Camera firstPersonCamera; // 1인칭 카메라
+    public Camera thirdPersonCamera; // 3인칭 카메라
+    public float thirdPersonDistance = 10f; // 3인칭 카메라가 플레이어 뒤에 위치할 거리
+    private bool isThirdPerson;     // 현재 카메라가 3인칭인지 여부
+
+
     // UI 관련
     public bool canLock = true;
     // 처음에는 인벤토리 창을 비활성화한 상태로 시작한다
@@ -48,9 +55,16 @@ public class PlayerController : MonoBehaviour
         playerAnimator = GetComponent<Animator>();
         Cursor.lockState = CursorLockMode.Locked;   // 게임 시작 중에 마우스 커서 안보이게
 
+        // 캐싱
         isMovingBackward = false;
-
+        cameraContainer = Helper.FindChild(gameObject.transform, "CameraController");
         clipLength = Helper.GetAnimationClipLength(playerAnimator, "PlayerMeleeAttack");
+
+        firstPersonCamera = Helper.FindChild(cameraContainer.transform, "MainCamera").GetComponent<Camera>();
+        thirdPersonCamera = Helper.FindChild(cameraContainer.transform, "ThirdPersonCamera").GetComponent<Camera>();
+        isThirdPerson = false;
+        firstPersonCamera.gameObject.SetActive(true);   // 1인칭 시작
+        thirdPersonCamera.gameObject.SetActive(false);  
     }
     // 물리연산은 FixedUpdate에서 호출
     void FixedUpdate()
@@ -170,5 +184,24 @@ public class PlayerController : MonoBehaviour
         canLock = !toggle;
         // toggle이 true: 위에서 커서를 화면에서 움직일 수 있게 만들었으므로 canLock은 false
         // toggle이 false: 위에서 화면 중앙에 커서를 고정했으므로 canLock은 true
+    }
+    // v 키 누르면 카메라 교체
+    public void OnCamChange(InputAction.CallbackContext context)
+    {
+        if (isThirdPerson)
+        {
+            // 1인칭 카메라 활성화
+            firstPersonCamera.gameObject.SetActive(true);
+            thirdPersonCamera.gameObject.SetActive(false);
+        }
+        else
+        {
+            // 3인칭 카메라 활성화
+            firstPersonCamera.gameObject.SetActive(false);
+            thirdPersonCamera.gameObject.SetActive(true);
+        }
+
+        // 상태 토글
+        isThirdPerson = !isThirdPerson;
     }
 }
