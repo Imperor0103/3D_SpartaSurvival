@@ -67,12 +67,12 @@ public class JumpUniv : MonoBehaviour
     private void Update()
     {
         lastJumpExitTime += Time.deltaTime;
-        // 점프대에서 떨어진 후 5초가 지나면 점프 카운트 초기화
-        if (lastJumpExitTime >= 5f)
+        // 땅으로 쏜 ray가 땅에 닿으면 점프 카운트를 0으로
+
+        if (CharacterManager.Instance.Player.controller.IsGrounded())
         {
             jumpCount = 0;
             lastJumpExitTime = 0f;
         }
     }
-
 }
