@@ -32,8 +32,9 @@ public class PlayerController : MonoBehaviour
     public Camera firstPersonCamera; // 1인칭 카메라
     public Camera thirdPersonCamera; // 3인칭 카메라
     public float thirdPersonDistance = 10f; // 3인칭 카메라가 플레이어 뒤에 위치할 거리
-    private bool isThirdPerson;     // 현재 카메라가 3인칭인지 여부
-
+    //public bool isThirdPerson;     // 현재 카메라가 3인칭인지 여부 -> Helper클래스로 옮겼다
+    // 3인칭일때는 커서의 Lock을 풀어야한다
+    /// 해당 변수는 Helper클래스에 static으로 선언되어있으니 여기서 선언하지 않는다
 
     // UI 관련
     public bool canLock = true;
@@ -62,7 +63,7 @@ public class PlayerController : MonoBehaviour
 
         firstPersonCamera = Helper.FindChild(cameraContainer.transform, "MainCamera").GetComponent<Camera>();
         thirdPersonCamera = Helper.FindChild(cameraContainer.transform, "ThirdPersonCamera").GetComponent<Camera>();
-        isThirdPerson = false;
+        Helper.isThirdPerson = false;
         firstPersonCamera.gameObject.SetActive(true);   // 1인칭 시작
         thirdPersonCamera.gameObject.SetActive(false);
     }
@@ -171,7 +172,7 @@ public class PlayerController : MonoBehaviour
         {
             /// UIInventory의 Toggle 메서드를 사용하기 위해 delegate를 사용
             inventory?.Invoke();    // delegate에 Toggle 메서드가 있으면 호출
-            ToggleCursor();
+            ToggleCursorByUI();
         }
     }
     /// <summary>
@@ -179,7 +180,7 @@ public class PlayerController : MonoBehaviour
     /// 인벤토리를 껐을 때는 커서가 화면 중앙에 고정되며, 보이지 않는다
     /// 인벤토리를 켰을때는 화면을 고정하고, 인벤토리를 클릭해줄 커서가 나와서 화면 전체를 움직일 수 있다
     /// </summary>
-    void ToggleCursor()
+    void ToggleCursorByUI()
     {
         bool toggle = Cursor.lockState == CursorLockMode.Locked;    /// Locked: 인벤토리창이 아직 열리지 않은 상태(커서가 화면 중앙에 고정되어있다)
         Cursor.lockState = toggle ? CursorLockMode.None : CursorLockMode.Locked;
@@ -193,20 +194,19 @@ public class PlayerController : MonoBehaviour
     // v 키 누르면 카메라 교체
     public void OnCamChange(InputAction.CallbackContext context)
     {
-        if (isThirdPerson)
+        if (context.phase == InputActionPhase.Started)
         {
-            // 1인칭 카메라 활성화
-            firstPersonCamera.gameObject.SetActive(true);
-            thirdPersonCamera.gameObject.SetActive(false);
+            ToggleCursorByCamera(); // 처음에는 Helper.isThirdPerson가 false로 들어오고 true로 바뀐다
+            firstPersonCamera.gameObject.SetActive(!Helper.isThirdPerson);  // 처음에는 비활성화하므로 false가 맞다
+            thirdPersonCamera.gameObject.SetActive(Helper.isThirdPerson);   // 처음에는 활성화하므로 true가 맞다
         }
-        else
-        {
-            // 3인칭 카메라 활성화
-            firstPersonCamera.gameObject.SetActive(false);
-            thirdPersonCamera.gameObject.SetActive(true);
-        }
+    }
+    void ToggleCursorByCamera()
+    {
+        // 처음 호출할때는 1인칭이다
+        bool toggle = Cursor.lockState == CursorLockMode.Locked;    /// 1인칭 일때는 커서 잠금상태이므로 toggle은 true
+        Cursor.lockState = toggle ? CursorLockMode.None : CursorLockMode.Locked;
 
-        // 상태 토글
-        isThirdPerson = !isThirdPerson;
+        Helper.isThirdPerson = !Helper.isThirdPerson;
     }
 }

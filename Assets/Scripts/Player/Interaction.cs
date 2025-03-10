@@ -34,34 +34,67 @@ public class Interaction : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Vector2 mousePosition = Mouse.current.position.ReadValue();
+        Debug.Log($"스크린 좌표: {mousePosition}");
+
+        // 1인칭일때만 ray를 만든다
         // checkRate 간격으로 ray를 만들어야한다
         if (Time.time - lastCheckTime > checkRate)
         {
             lastCheckTime = Time.time;
 
-            // 카메라에서 화면 중앙에 ray 발사
-            // 카메라가 찍고 있는 방향이 있기 때문에, 시작점만 정해주면 된다
-            Ray ray = camera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));
-            RaycastHit hit; // ray에 부딪힌 게임오브젝트의 정보가 들어간다
-
-            if (Physics.Raycast(ray, out hit, maxCheckDistance, layerMask)) // ray에 검출된 오브젝트가 있다
+            if (!Helper.isThirdPerson)
             {
-                if (hit.collider.gameObject != curInteractGameObject)   // ray에 충돌한 게임오브젝트가 현재 상호작용하는 게임오브젝트가 아니라면
-                {
-                    curInteractGameObject = hit.collider.gameObject;    // 새로운 정보로 바꿔
-                    curInteractable = hit.collider.GetComponent<IInteractable>();       /// ★검출된 정보를 인터페이스로 캐싱
-                    SetPromptText();    // promptText에 출력해라
-                }
+                CheckFirstPersonInteraction();  // 1인칭 카메라
             }
-            else // 빈공간에 ray를 쏜 경우
+            else
             {
-                // 모든 정보를 없애라
-                curInteractGameObject = null;
-                curInteractable = null;
-                promptText.gameObject.SetActive(false);
+                CheckThirdPersonInteraction();  // 3인칭 카메라
             }
         }
     }
+    // 1인칭일때는 ray를 만들어서 ray와 닿으면 상호작용
+    private void CheckFirstPersonInteraction()
+    {
+        // 카메라에서 화면 중앙에 ray 발사
+        // 카메라가 찍고 있는 방향이 있기 때문에, 시작점만 정해주면 된다
+        Ray ray = camera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));
+        ProcessRaycast(ray);
+    }
+    // 3인칭일때는 마우스로 클릭한 곳으로 카메라에 ray를 쏴서 닿으면 상호작용
+    private void CheckThirdPersonInteraction()
+    {
+        Ray ray = camera.ScreenPointToRay(Mouse.current.position.ReadValue());
+        ProcessRaycast(ray);
+    }
+    // 1인칭, 3인칭 모두 ray를 쏘고 결과를 처리하는 공통 메서드
+    private void ProcessRaycast(Ray ray)
+    {
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, maxCheckDistance, layerMask))
+        {
+            // 충돌한 지점의 월드 좌표
+            Vector3 worldPosition = hit.point;
+            Debug.Log($"Interaction에서 호출, 마우스 클릭 위치 (월드 좌표): {worldPosition}");
+
+            if (hit.collider.gameObject != curInteractGameObject)
+            {
+                curInteractGameObject = hit.collider.gameObject;
+                curInteractable = hit.collider.GetComponent<IInteractable>();
+                SetPromptText();
+            }
+        }
+        else
+        {
+            curInteractGameObject = null;
+            curInteractable = null;
+            promptText.gameObject.SetActive(false);
+        }
+    }
+
+
+
     // promptText에 정보를 세팅
     private void SetPromptText()
     {

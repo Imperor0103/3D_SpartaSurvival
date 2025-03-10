@@ -9,6 +9,42 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class Helper
 {
+    public static bool isThirdPerson;     // 현재 카메라가 3인칭인지 여부
+
+    // UI의 RectTransform 좌표를 월드 좌표로 변환하는 메서드    
+    public static Vector3 ConvertUIToWorldPosition(RectTransform rectTransform, Camera uiCamera)
+    {
+        return uiCamera.transform.TransformPoint(rectTransform.localPosition);
+    }
+    // 월드 좌표를 UI 좌표(Vector2)로 변환하는 메서드
+    public static Vector2 ConvertWorldToUIPosition(Vector3 worldPosition, RectTransform canvasRectTransform, Camera uiCamera)
+    {
+        Vector3 screenPos = uiCamera.WorldToScreenPoint(worldPosition);
+        Vector2 uiPosition;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRectTransform, screenPos, uiCamera, out uiPosition);
+        return uiPosition;
+    }
+    // UI 좌표를 Vector3 월드 좌표로 변환
+    public static Vector3 ConvertUICoordinateToWorld(Vector2 uiPosition, Camera uiCamera, RectTransform canvas)
+    {
+        Vector3 screenPos = new Vector3(uiPosition.x, uiPosition.y, uiCamera.nearClipPlane);
+        return uiCamera.ScreenToWorldPoint(screenPos);
+    }
+
+    // Vector3 월드 좌표를 UI 좌표로 변환
+    public static Vector2 ConvertWorldCoordinateToUI(Vector3 worldPosition, RectTransform canvas, Camera uiCamera)
+    {
+        Vector3 screenPos = uiCamera.WorldToScreenPoint(worldPosition);
+        Vector2 uiPos;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas, screenPos, uiCamera, out uiPos);
+        return uiPos;
+    }
+
+
+
+
+
+
     // 자식의 오브젝트를 재귀검색한다
     public static Transform FindChild(Transform parent, string findname)
     {
@@ -45,7 +81,7 @@ public class Helper
         }
         return null;
     }
-
+    // 애니메이션 클립의 길이를 리턴
     public static float GetAnimationClipLength(Animator playerAnimator, string clipName)
     {
         if (playerAnimator != null)

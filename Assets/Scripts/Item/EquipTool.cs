@@ -54,32 +54,47 @@ public class EquipTool : Equip
     // 이벤트 함수
     // aim 기준으로 때렸을 때 EquipTool마다 attackDistance 이내에 있으면 호출
     /// <summary>
-    /// 자원 채취 애니메이션에서 공격하는 그 key frame에서 OnHit을 호출해야한다
-    /// 
     /// 이젠 무기에 애니메이션이 없어졌고, 플레이어가 애니메이션을 담당하는데
-    /// 플레이어의 애니메이션이 끝나고 이 메서드를 호출하게 한다면...?
+    /// 플레이어의 애니메이션이 끝나고 이 메서드를 호출하게 한다
     /// 
     /// </summary>
     public void OnHit()
     {
-        Ray ray = camera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, attackDistance))
+        // 1인칭, 3인칭일 때 로직은 달라야 한다
+        Ray ray = GetAttackRay();
+        ProcessHit(ray);
+    }
+    // 1인칭, 3인칭에 따라 Ray 생성
+    private Ray GetAttackRay()
+    {
+        if (!Helper.isThirdPerson) // 1인칭
+            return camera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
+        else // 3인칭
+            return camera.ScreenPointToRay(Input.mousePosition);
+    }
+    // Raycast 후 적절한 상호작용 처리
+    private void ProcessHit(Ray ray)
+    {
+        if (Physics.Raycast(ray, out RaycastHit hit, attackDistance))
         {
-            /// doesGatherResources: 자원 채취 가능해야한다(Gather가 가능)
-            if (doesGatherResources && hit.collider.TryGetComponent(out Resource resource))
-            {
-                /// 만약 Resource 컴포넌트를 가지고 있다면 resource의 Gather를 호출한다
-                resource.Gather(hit.point, hit.normal);
-            }
+            // 충돌한 지점의 월드 좌표
+            Vector3 worldPosition = hit.point;
+            Debug.Log($"EquipTool에서 호출, 마우스 클릭 위치 (월드 좌표): {worldPosition}");
 
-            /// 타격 가능해야한다
-            if (doesDealDamage && hit.collider.TryGetComponent(out NPC monster))
-            {
-                /// 만약 NPC 컴포넌트를 가지고 있다면 monster의 
-                monster.TakePhysicalDamage(damage);
-            }
+            HandleResourceGathering(hit);
+            HandleCombat(hit);
         }
+    }
+    // 자원 채취
+    private void HandleResourceGathering(RaycastHit hit)
+    {
+        if (doesGatherResources && hit.collider.TryGetComponent(out Resource resource))
+            resource.Gather(hit.point, hit.normal);
+    }
+    // 공격 
+    private void HandleCombat(RaycastHit hit)
+    {
+        if (doesDealDamage && hit.collider.TryGetComponent(out NPC monster))
+            monster.TakePhysicalDamage(damage);
     }
 }
