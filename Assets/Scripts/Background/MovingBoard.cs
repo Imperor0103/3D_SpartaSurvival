@@ -28,4 +28,19 @@ public class MovingBoard : MonoBehaviour
             targetPos = (targetPos == destPos) ? originPos : destPos;
         }
     }
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            collision.transform.SetParent(transform); // 플레이어를 발판의 자식으로 설정
+        }
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            collision.transform.SetParent(null); // 플레이어의 부모 관계 해제
+        }
+    }
 }
