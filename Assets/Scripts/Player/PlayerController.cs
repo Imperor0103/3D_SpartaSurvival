@@ -107,7 +107,7 @@ public class PlayerController : MonoBehaviour
         // Raycast를 사용하여 벽 감지
         RaycastHit hit;
         isNearWall = Helper.Raycast(transform.position, transform.forward, out hit, raycastDistance, wallLayer);
-
+        
         if (isNearWall && hit.collider.CompareTag("Rock"))
         {
             // 벽이 감지되었을 때 추가 로직 처리
@@ -121,7 +121,7 @@ public class PlayerController : MonoBehaviour
                 _rigidbody.useGravity = false;
             }
         }
-        else
+        else // 벽에서 멀어질때
         {
             isNearWall = false;
 
@@ -133,8 +133,8 @@ public class PlayerController : MonoBehaviour
                 _rigidbody.useGravity = true;
             }
         }
-
-        if (isClimbing)
+        //
+        if (isClimbing) // 벽 타기 중
         {
             // 벽 타기 중일 때의 물리적 처리
             _rigidbody.useGravity = false;
@@ -142,11 +142,6 @@ public class PlayerController : MonoBehaviour
             /// 벽 쪽으로 밀어주는 힘 추가 (벽에서 떨어지지 않도록)
             _rigidbody.AddForce(-rockNormal * 10f, ForceMode.Force);
         }
-        else
-        {
-            _rigidbody.useGravity = true;
-        }
-
     }
 
     // 실제 이동
