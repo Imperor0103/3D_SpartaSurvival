@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// 점프대(Trampoline은 에셋에서 이미 쓰고 있어서 다른 이름을 써야한다)
 /// </summary>
-public class JumpUniv : MonoBehaviour
+public class JumpPlatform : MonoBehaviour
 {
     // 점프력
     [SerializeField] private float jumpForce; // 점프 강도

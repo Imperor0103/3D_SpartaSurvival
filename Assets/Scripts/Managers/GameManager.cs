@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+// 아직은 쓰지 않지만, 나중에 클래스 다시 나누다보면 사용할 듯
 public class GameManager : Singleton<GameManager>
 {
     protected override void OnSceneLoaded(Scene scene, LoadSceneMode mode)

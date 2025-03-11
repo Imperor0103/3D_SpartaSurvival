@@ -16,7 +16,7 @@ public enum AIState
 public class NPC : MonoBehaviour, IDamagable
 {
     [Header("Stats")]
-    public int health;
+    public float health;
     public float walkSpeed;
     public float runSpeed;
     public ItemData[] dropOnDeath;  // 드랍아이템 정보
@@ -211,7 +211,7 @@ public class NPC : MonoBehaviour, IDamagable
     /// EquipTool에서 Combat 관련 속성을 참고한다
     /// </summary>
     /// <param name="damageAmount"></param>
-    public void TakePhysicalDamage(int damageAmount)
+    public void TakePhysicalDamage(float damageAmount)
     {
         health -= damageAmount;
         if (health <= 0)

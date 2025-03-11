@@ -6,7 +6,7 @@ using UnityEngine;
 
 public interface IDamagable
 {
-    void TakePhysicalDamage(int damage);
+    void TakePhysicalDamage(float damage);
 }
 
 public class PlayerCondition : MonoBehaviour, IDamagable
@@ -85,7 +85,7 @@ public class PlayerCondition : MonoBehaviour, IDamagable
         Debug.Log("죽었다");
     }
 
-    public void TakePhysicalDamage(int damage)
+    public void TakePhysicalDamage(float damage)
     {
         if (isInvincible)
         {
@@ -95,6 +95,8 @@ public class PlayerCondition : MonoBehaviour, IDamagable
         {
             health.Subtract(damage);
             onTakeDamage?.Invoke(); // delegate에 함수가 있으면 호출
+            // 3초간 무적
+            Invincible(3f);
         }
     }
     // 장비 휘두르면 스테미나 줄어든다
@@ -109,4 +111,8 @@ public class PlayerCondition : MonoBehaviour, IDamagable
         return true;
     }
 
+    public Condition GetHealth()
+    {
+        return health;
+    }
 }
