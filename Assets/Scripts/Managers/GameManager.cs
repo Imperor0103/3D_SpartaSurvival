@@ -29,14 +29,25 @@ public class GameManager : Singleton<GameManager>
     public void GameOver()
     {
         isGameOver=true;
+
         // 정지 후 UI 띄운다
         Time.timeScale = 0f;
         uiManager.uiGameOver.gameObject.SetActive(true);    
+        // 커서 잠금 해제    
+        Cursor.lockState = CursorLockMode.None;
     }
     public void Restart()
     {
         // 현재 씬을 다시 로드
         Time.timeScale = 1f;        
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        // health, Hunger, stamina 다시 원래대로
+        CharacterManager.Instance.Player.condition.health.curValue = CharacterManager.Instance.Player.condition.health.startValue;
+        CharacterManager.Instance.Player.condition.hunger.curValue = CharacterManager.Instance.Player.condition.hunger.startValue;
+        CharacterManager.Instance.Player.condition.stamina.curValue = CharacterManager.Instance.Player.condition.stamina.startValue;
+
+
+        // 커서 다시 잠금
+        //Cursor.lockState = CursorLockMode.Locked;
     }
 }

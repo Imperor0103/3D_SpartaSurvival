@@ -13,9 +13,9 @@ public class PlayerCondition : MonoBehaviour, IDamagable
 {
     public UICondition uiCondition;
 
-    Condition health { get { return uiCondition.health; } }
-    Condition hunger { get { return uiCondition.hunger; } }
-    Condition stamina { get { return uiCondition.stamina; } }
+    public Condition health { get { return uiCondition.health; } }
+    public Condition hunger { get { return uiCondition.hunger; } }
+    public Condition stamina { get { return uiCondition.stamina; } }
 
     public bool isInvincible = false;   // 무적상태
 
