@@ -14,7 +14,9 @@ public class PlayerController : MonoBehaviour
     public Animator playerAnimator;
     // S키가 눌렸을 경우 180도 회전을 하고 움직여야 한다
     Vector2 moveInput;  // 키보드 입력방향 저장
-    public bool isMovingBackward;
+    public bool isMovingBackward;   // S 누르면 방향을 바꿔야한다
+    public bool isClimbing;     // Rock에 닿으면 오를 수 있다
+    Vector3 rockNormal;     // Rock의 법선벡터 
 
     // 애니메이터를 여기서 관리하므로, 플레이어의 공격애니메이션 지속시간을 구해야한다
     public float clipLength;
@@ -55,16 +57,16 @@ public class PlayerController : MonoBehaviour
         playerAnimator = GetComponent<Animator>();
         Cursor.lockState = CursorLockMode.Locked;   // 게임 시작 중에 마우스 커서 안보이게
 
-        // 캐싱
+        isClimbing = false;
         isMovingBackward = false;
+        isThirdPerson = false;
+        // 캐싱
         cameraContainer = Helper.FindChild(gameObject.transform, "CameraController");
         clipLength = Helper.GetAnimationClipLength(playerAnimator, "PlayerMeleeAttack");
-
         firstPersonCamera = Helper.FindChild(cameraContainer.transform, "MainCamera").GetComponent<Camera>();
         thirdPersonCamera = Helper.FindChild(cameraContainer.transform, "ThirdPersonCamera").GetComponent<Camera>();
-        isThirdPerson = false;
         firstPersonCamera.gameObject.SetActive(true);   // 1인칭 시작
-        thirdPersonCamera.gameObject.SetActive(false);  
+        thirdPersonCamera.gameObject.SetActive(false);
     }
     // 물리연산은 FixedUpdate에서 호출
     void FixedUpdate()
@@ -82,11 +84,28 @@ public class PlayerController : MonoBehaviour
     // 실제 이동
     void Move()
     {
-        Vector3 dir = transform.forward * curMovementInput.y + transform.right * curMovementInput.x;
-        dir *= moveSpeed;
-        dir.y = _rigidbody.velocity.y; // 점프를 했을 때에만 위아래로 움직여야 하므로 y방향 속도 초기화
+        if (isClimbing)
+        {
+            // 벽의 오른쪽 방향 (표면 평행)
+            Vector3 wallRight = Vector3.Cross(rockNormal, Vector3.up).normalized;
 
-        _rigidbody.velocity = dir;
+            // 벽의 위쪽 방향 (표면 평행)
+            Vector3 wallUp = Vector3.Cross(wallRight, rockNormal).normalized;
+
+            // 입력 조합 (A/D = 좌우, W/S = 상하)
+            Vector3 moveDirection = (wallRight * curMovementInput.x) + (wallUp * curMovementInput.y);
+            moveDirection *= moveSpeed;
+
+            _rigidbody.velocity = moveDirection;  // 클라이밍 중 이동 적용
+        }
+        else // 일반 이동
+        {
+            Vector3 dir = transform.forward * curMovementInput.y + transform.right * curMovementInput.x;
+            dir *= moveSpeed;
+            dir.y = _rigidbody.velocity.y; // 점프를 했을 때에만 위아래로 움직여야 하므로 y방향 속도 초기화
+
+            _rigidbody.velocity = dir;
+        }
     }
     // 카메라 회전
     void CameraLook()
@@ -103,10 +122,10 @@ public class PlayerController : MonoBehaviour
     // 입력 이벤트 처리
     public void OnMove(InputAction.CallbackContext context)
     {
+        
         // S키가 눌렸다면 뒤로 바라본다
         Vector2 moveInput = context.ReadValue<Vector2>();
         Vector3 moveDirection = new Vector3(moveInput.x, 0, moveInput.y);
-
 
         if (context.phase == InputActionPhase.Performed)  // 키가 계속 눌리는 동안
         {
@@ -203,5 +222,36 @@ public class PlayerController : MonoBehaviour
 
         // 상태 토글
         isThirdPerson = !isThirdPerson;
+    }
+    // Rock에 닿으면 애니메이션 바꾸고 벽타기 시작
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Rock"))
+        {
+            isClimbing = true;
+            playerAnimator.SetBool("Climbing", true);
+            _rigidbody.useGravity = false;
+            _rigidbody.velocity = Vector3.zero; // 기존 운동량 제거
+        }
+    }
+    // 벽타기 진행중
+    private void OnCollisionStay(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Rock") && isClimbing)
+        {
+            // 충돌한 표면의 법선 벡터를 얻는다
+            rockNormal = collision.contacts[0].normal;
+
+        }
+    }
+    // 벽타기 끝
+    private void OnCollisionExit(Collision collision)
+    {
+        if (!collision.gameObject.CompareTag("Rock"))
+        {
+            isClimbing = false;
+            playerAnimator.SetBool("Climbing", false);
+            _rigidbody.useGravity = true;
+        }
     }
 }
