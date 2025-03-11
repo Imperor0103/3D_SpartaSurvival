@@ -13,6 +13,7 @@ public class JumpPlatform : MonoBehaviour
     [SerializeField] private float[] jumpForces = { 100f, 200f, 300f, 350f }; // 점프 강도 배열
     [SerializeField] private bool isOnJumpPad;
     [SerializeField] private float lastJumpExitTime;    // 마지막 점프로부터 지난 시간
+    public string des;
 
     // Start is called before the first frame update
     void Start()
@@ -21,6 +22,7 @@ public class JumpPlatform : MonoBehaviour
         jumpCount = 0;
         isOnJumpPad = false;
         lastJumpExitTime = 0f;
+        des = "점프대를 밟으면 높게 점프한다";
     }
 
     // 플레이어가 닿으면 플레이어를 위로 보낸다

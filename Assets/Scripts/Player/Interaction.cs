@@ -29,6 +29,9 @@ public class Interaction : MonoBehaviour
         // promptText는 Player가 가진 것이 아니라 UI가 가지고 있다
         // 하이러키에서 둘의 공통부모는 Scene 뿐인데, 그러면 Scene을 가져와서 그 자식중에서 찾아야하나?
         promptText = Helper.FindObjectInScene("PromptText").GetComponent<TextMeshProUGUI>();
+
+        /// layerMask에 추가
+        layerMask = LayerMask.GetMask("Interactable", "JumpPlatform", "Door");
     }
 
     // Update is called once per frame
@@ -46,12 +49,22 @@ public class Interaction : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit, maxCheckDistance, layerMask)) // ray에 검출된 오브젝트가 있다
             {
-                if (hit.collider.gameObject != curInteractGameObject)   // ray에 충돌한 게임오브젝트가 현재 상호작용하는 게임오브젝트가 아니라면
+                if (hit.collider.CompareTag("JumpPlatform"))
                 {
-                    curInteractGameObject = hit.collider.gameObject;    // 새로운 정보로 바꿔
-                    curInteractable = hit.collider.GetComponent<IInteractable>();       /// ★검출된 정보를 인터페이스로 캐싱
-                    SetPromptText();    // promptText에 출력해라
+                    // JumpingPlatform에 대한 처리
+                    HandleJumpingPlatform(hit.collider.gameObject); // 매개변수로 들어가는 게임오브젝트는 JumpPlatform
                 }
+                else
+                {
+                    if (hit.collider.gameObject != curInteractGameObject)   // ray에 충돌한 게임오브젝트가 현재 상호작용하는 게임오브젝트가 아니라면
+                    {
+                        curInteractGameObject = hit.collider.gameObject;    // 새로운 정보로 바꿔
+                        curInteractable = hit.collider.GetComponent<IInteractable>();       /// ★검출된 정보를 인터페이스로 캐싱
+                        SetPromptText();    // promptText에 출력해라
+                    }
+
+                }
+
             }
             else // 빈공간에 ray를 쏜 경우
             {
@@ -62,6 +75,26 @@ public class Interaction : MonoBehaviour
             }
         }
     }
+    private void HandleJumpingPlatform(GameObject gameObj)
+    {
+        // JumpingPlatform에 대한 특별한 처리를 여기에 구현
+        // 예: 메세지 출력
+        //Debug.Log("JumpingPlatform detected: " + gameObj.name);
+
+        // 필요하다면 promptText를 업데이트할 수 있습니다.
+        promptText.gameObject.SetActive(true);
+        
+
+        JumpPlatform jump = gameObj.GetComponent<JumpPlatform>();
+        promptText.text = jump.des;
+
+        // curInteractGameObject와 curInteractable을 업데이트할 수도 있습니다.
+        curInteractGameObject = gameObj;
+        // JumpingPlatform이 IInteractable을 구현한다면:
+        // curInteractable = platform.GetComponent<IInteractable>();
+    }
+
+
     // promptText에 정보를 세팅
     private void SetPromptText()
     {

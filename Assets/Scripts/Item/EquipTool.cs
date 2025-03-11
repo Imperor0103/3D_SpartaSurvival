@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// 공격, 자원채취
+// 공격, 자원채취, 능력향상
 public class EquipTool : Equip
 {
     public float attackRate;    // 공격주기(공격 애니메이션 재생시간)
@@ -10,6 +10,10 @@ public class EquipTool : Equip
     public float attackDistance;    // 최대 공격 가능한 거리
 
     public float useStamina;    // 1회 행동할때 스테미나 소모량
+
+    //
+    public float speed;
+    public float jumpCount; // 점프횟수
 
 
     [Header("Resource Gathering")]
