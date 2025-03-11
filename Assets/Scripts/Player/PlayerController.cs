@@ -107,7 +107,7 @@ public class PlayerController : MonoBehaviour
         // Raycast를 사용하여 벽 감지
         RaycastHit hit;
         isNearWall = Helper.Raycast(transform.position, transform.forward, out hit, raycastDistance, wallLayer);
-        
+
         if (isNearWall && hit.collider.CompareTag("Rock"))
         {
             // 벽이 감지되었을 때 추가 로직 처리
@@ -167,6 +167,7 @@ public class PlayerController : MonoBehaviour
             dir.y = _rigidbody.velocity.y; // 점프를 했을 때에만 위아래로 움직여야 하므로 y방향 속도 초기화
 
             _rigidbody.velocity = dir;
+            //Debug.LogFormat($"플레이어의 위치x,y,z순: {gameObject.transform.position.x} ,{gameObject.transform.position.y},{gameObject.transform.position.z}");
         }
     }
     // 카메라 회전

@@ -45,6 +45,25 @@ public class Helper
         }
         return null;
     }
+    /// <summary>
+    /// DontDestroyOnLoad 씬에 있는 오브젝트까지 포함하여 모두 검색한다
+    /// </summary>
+    /// <param name="findname"></param>
+    /// <returns></returns>
+    public static Transform FindObjAnywhere(string findname)
+    {
+        GameObject[] allObjects = GameObject.FindObjectsOfType<GameObject>(true); // 비활성화된 오브젝트 포함 검색
+        foreach (GameObject obj in allObjects)
+        {
+            if (obj.name == findname)
+            {
+                return obj.transform;
+            }
+        }
+        return null;
+    }
+
+
 
     public static float GetAnimationClipLength(Animator playerAnimator, string clipName)
     {

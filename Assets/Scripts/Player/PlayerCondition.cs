@@ -83,6 +83,8 @@ public class PlayerCondition : MonoBehaviour, IDamagable
     public void Die()
     {
         Debug.Log("Á×¾ú´Ù");
+        // GameOverUI ¶ç¿ö¾ßÇÑ´Ù
+        GameManager.Instance.GameOver();
     }
 
     public void TakePhysicalDamage(float damage)
