@@ -13,6 +13,10 @@ public class DamageIndicator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // 캐싱
+        image = gameObject.GetComponent<Image>();
+        //image.gameObject.SetActive(false);  // 비활성화한채로 초기화
+
         CharacterManager.Instance.Player.condition.onTakeDamage += Flash;   // delegate에 메서드 추가
     }
 

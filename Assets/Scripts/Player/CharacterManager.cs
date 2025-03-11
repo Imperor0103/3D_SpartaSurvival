@@ -1,10 +1,10 @@
 // 사용하지 않는 using문 지워라
 using UnityEngine;
 
-public class CharacterManager : MonoBehaviour
+public class CharacterManager : Singleton<CharacterManager>
 {
     private static CharacterManager _instance;
-    public static CharacterManager Instance
+    public static new CharacterManager Instance /// Singleton의 Instance를 사용하지 않고 Character의 Instance를 사용
     {
         get
         {

@@ -10,6 +10,8 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 {
+    private static List<GameObject> persistentObjects = new List<GameObject>(); // 유지할 오브젝트 리스트
+
     private static T instance;
     public static T Instance
     {
@@ -61,11 +63,41 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     /// <param name="mode"></param>
     protected virtual void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 각각 클래스에서 정의해 사용한다
+        /// 매니저에서 참조하고있는 모든 오브젝트는 일단 DontDestroyOnLoad 선언을 한다
+        /// 중복되는 오브젝트 제거한다
+        for (int i = persistentObjects.Count - 1; i >= 0; i--)
+        {
+            GameObject obj = persistentObjects[i];
+
+            // 씬이 변경되었을 때 같은 이름과 위치의 새로운 오브젝트가 생성되었는지 검사
+            foreach (GameObject newObj in FindObjectsOfType<GameObject>())
+            {
+                if (newObj.name == obj.name && newObj.transform.position == obj.transform.position)
+                {
+                    Destroy(newObj); // 중복된 새 오브젝트 삭제
+                }
+            }
+        }
+        // 그 외 부분은 각각 클래스에서 정의해 사용한다
     }
+    /// <summary>
+    /// 특정 오브젝트를 `DontDestroyOnLoad`에 등록하는 메서드
+    /// </summary>
+    public void RegisterPersistentObject(GameObject obj)
+    {
+        if (!persistentObjects.Contains(obj))
+        {
+            DontDestroyOnLoad(obj);
+            persistentObjects.Add(obj);
+        }
+    }
+
+
     protected virtual void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
+
+        /// 씬에서 필요없는건 따로 삭제한다
     }
 }
 

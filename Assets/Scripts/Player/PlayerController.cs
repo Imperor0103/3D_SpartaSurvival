@@ -173,45 +173,54 @@ public class PlayerController : MonoBehaviour
     // 카메라 회전
     void CameraLook()
     {
-        // 카메라 상하 회전
-        camCurXRot += mouseDelta.y * lookSensitivity;   /// 상하회전을 하기 위해서는 y값을 x에 넣는다
-        camCurXRot = Mathf.Clamp(camCurXRot, minXLook, maxXLook);
-        // 카메라 회전각에 로컬좌표를 줘야하는 이유는 플레이어가 기준이 되기 때문
-        cameraContainer.localEulerAngles = new Vector3(-camCurXRot, 0, 0);  /// -를 하는 이유: 마우스를 내리면 아래로 회전하게 만들기 위해
+        if (!GameManager.Instance.isGameOver)
+        {
+            // 카메라 상하 회전
+            camCurXRot += mouseDelta.y * lookSensitivity;   /// 상하회전을 하기 위해서는 y값을 x에 넣는다
+            camCurXRot = Mathf.Clamp(camCurXRot, minXLook, maxXLook);
+            // 카메라 회전각에 로컬좌표를 줘야하는 이유는 플레이어가 기준이 되기 때문
+            cameraContainer.localEulerAngles = new Vector3(-camCurXRot, 0, 0);  /// -를 하는 이유: 마우스를 내리면 아래로 회전하게 만들기 위해
 
-        // 카메라 좌우 회전
-        transform.eulerAngles += new Vector3(0, mouseDelta.x * lookSensitivity, 0); /// 좌우회전을 하기 위해서는 x값을 y에 넣는다
+            // 카메라 좌우 회전
+            transform.eulerAngles += new Vector3(0, mouseDelta.x * lookSensitivity, 0); /// 좌우회전을 하기 위해서는 x값을 y에 넣는다
+        }
     }
     // 입력 이벤트 처리
     public void OnMove(InputAction.CallbackContext context)
     {
-
-        // S키가 눌렸다면 뒤로 바라본다
-        Vector2 moveInput = context.ReadValue<Vector2>();
-        Vector3 moveDirection = new Vector3(moveInput.x, 0, moveInput.y);
-
-        if (context.phase == InputActionPhase.Performed)  // 키가 계속 눌리는 동안
+        if (!GameManager.Instance.isGameOver)
         {
-            // 이동 애니메이션
-            playerAnimator.SetBool("Moving", true);
-            curMovementInput = context.ReadValue<Vector2>();
-        }
-        else if (context.phase == InputActionPhase.Canceled)    // 키를 뗐을 때
-        {
-            // 정지 애니메이션
-            playerAnimator.SetBool("Moving", false);
-            curMovementInput = Vector2.zero;
+            // S키가 눌렸다면 뒤로 바라본다
+            Vector2 moveInput = context.ReadValue<Vector2>();
+            Vector3 moveDirection = new Vector3(moveInput.x, 0, moveInput.y);
+
+            if (context.phase == InputActionPhase.Performed)  // 키가 계속 눌리는 동안
+            {
+                // 이동 애니메이션
+                playerAnimator.SetBool("Moving", true);
+                curMovementInput = context.ReadValue<Vector2>();
+            }
+            else if (context.phase == InputActionPhase.Canceled)    // 키를 뗐을 때
+            {
+                // 정지 애니메이션
+                playerAnimator.SetBool("Moving", false);
+                curMovementInput = Vector2.zero;
+            }
         }
     }
     public void OnLook(InputAction.CallbackContext context)
     {
-        mouseDelta = context.ReadValue<Vector2>();  // 마우스 값은 입력하지 않아도 계속 유지된다
+        if (!GameManager.Instance.isGameOver)
+            mouseDelta = context.ReadValue<Vector2>();  // 마우스 값은 입력하지 않아도 계속 유지된다
     }
     public void OnJump(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Started && IsGrounded())  // 키 누르기 시작할때
+        if (!GameManager.Instance.isGameOver)
         {
-            _rigidbody.AddForce(Vector2.up * jumpPower, ForceMode.Impulse);  // 점프는 순간적으로 올라가야하므로 impurse 
+            if (context.phase == InputActionPhase.Started && IsGrounded())  // 키 누르기 시작할때
+            {
+                _rigidbody.AddForce(Vector2.up * jumpPower, ForceMode.Impulse);  // 점프는 순간적으로 올라가야하므로 impurse 
+            }
         }
     }
     // 아래로 ray를 쏘아 땅에 닿았는지 확인(중복점프를 방지)
@@ -219,7 +228,7 @@ public class PlayerController : MonoBehaviour
     {
         // 플레이어 기준 책상다리 4개 만든다
         Ray[] rays = new Ray[4]
-        {
+    {
             // 플레이어보다 (transform.up * 0.01f) 위에서 쏘는 이유:
             // 플레이어에서 쏘면, 플레이어가 땅에 부딪힌 경우 ground에서 쏠 수가 있어서, ground를 인지 못하는 경우가 발생
 
@@ -229,7 +238,7 @@ public class PlayerController : MonoBehaviour
             // x축(right) 앞,뒤 약간 떨어진 곳에서 아래방향으로 발사
             new Ray(transform.right + (transform.right * 0.2f) + (transform.up * 0.01f), Vector3.down),
             new Ray(-transform.right + (-transform.right * 0.2f) + (transform.up * 0.01f), Vector3.down)
-        };
+    };
         // 위의 모든 ray를 검출
         for (int i = 0; i < rays.Length; i++)
         {
@@ -244,11 +253,14 @@ public class PlayerController : MonoBehaviour
     // tab키 누르면 열린다
     public void OnInventory(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Started)
+        if (!GameManager.Instance.isGameOver)
         {
-            /// UIInventory의 Toggle 메서드를 사용하기 위해 delegate를 사용
-            inventory?.Invoke();    // delegate에 Toggle 메서드가 있으면 호출
-            ToggleCursor();
+            if (context.phase == InputActionPhase.Started && !GameManager.Instance.isGameOver)
+            {
+                /// UIInventory의 Toggle 메서드를 사용하기 위해 delegate를 사용
+                inventory?.Invoke();    // delegate에 Toggle 메서드가 있으면 호출
+                ToggleCursor();
+            }
         }
     }
     /// <summary>
@@ -270,20 +282,23 @@ public class PlayerController : MonoBehaviour
     // v 키 누르면 카메라 교체
     public void OnCamChange(InputAction.CallbackContext context)
     {
-        if (isThirdPerson)
+        if (!GameManager.Instance.isGameOver)
         {
-            // 1인칭 카메라 활성화
-            firstPersonCamera.gameObject.SetActive(true);
-            thirdPersonCamera.gameObject.SetActive(false);
-        }
-        else
-        {
-            // 3인칭 카메라 활성화
-            firstPersonCamera.gameObject.SetActive(false);
-            thirdPersonCamera.gameObject.SetActive(true);
-        }
+            if (isThirdPerson)
+            {
+                // 1인칭 카메라 활성화
+                firstPersonCamera.gameObject.SetActive(true);
+                thirdPersonCamera.gameObject.SetActive(false);
+            }
+            else
+            {
+                // 3인칭 카메라 활성화
+                firstPersonCamera.gameObject.SetActive(false);
+                thirdPersonCamera.gameObject.SetActive(true);
+            }
 
-        // 상태 토글
-        isThirdPerson = !isThirdPerson;
+            // 상태 토글
+            isThirdPerson = !isThirdPerson;
+        }
     }
 }

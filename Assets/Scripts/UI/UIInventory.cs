@@ -59,8 +59,9 @@ public class UIInventory : MonoBehaviour
         selectedItemStatName = Helper.FindChild(gameObject.transform, "StatName").GetComponent< TextMeshProUGUI>();
         selectedItemStatValue = Helper.FindChild(gameObject.transform, "StatValue").GetComponent< TextMeshProUGUI>();
 
-
-        controller.inventory += Toggle; // delegate에 함수 등록
+        // 처음 1번 실행된 뒤에 씬을 다시 로드하면 Start를 지나지 않는다는게 문제다
+        // GameManager.Restart에서 해줘야한다
+        controller.inventoryAction += Toggle; // delegate에 함수 등록
         CharacterManager.Instance.Player.addItem += AddItem;  // delegate에 함수 등록
 
         inventoryWindow.SetActive(false);   // 처음에는 인벤토리창 비활성화
@@ -307,5 +308,16 @@ public class UIInventory : MonoBehaviour
     public void OnUpEquipButton()
     {
         UnEquip(selectedItemIndex);
+    }
+
+    // 게임 재시작할 경우 인벤토리 비우기
+    public void ClearInventory()
+    {
+        // 모든 슬롯을 조사하여, 슬롯에 데이터가 있으면 비운다
+        for (int i = 0; i < slots.Length; i++)
+        {
+            if (slots[i].item != null)
+                slots[i].Clear();
+        }
     }
 }
