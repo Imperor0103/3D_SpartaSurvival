@@ -9783,7 +9783,12 @@ MonoBehaviour:
     m_Bits: 55
   playerAnimator: {fileID: 0}
   isMovingBackward: 0
+  isClimbing: 0
   clipLength: 0
+  raycastDistance: 1
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
   cameraContainer: {fileID: 0}
   minXLook: -85
   maxXLook: 85

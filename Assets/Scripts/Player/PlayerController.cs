@@ -21,6 +21,11 @@ public class PlayerController : MonoBehaviour
     // 애니메이터를 여기서 관리하므로, 플레이어의 공격애니메이션 지속시간을 구해야한다
     public float clipLength;
 
+    [Header("Raycast")]
+    public float raycastDistance;  // 플레이어 머리에서 나가는 ray(벽 감지)
+    public LayerMask wallLayer; // 벽 레이어
+    private bool isNearWall;    // 벽 근처인가
+
 
     [Header("Look")]
     public Transform cameraContainer;   // 카메라 회전
@@ -67,20 +72,83 @@ public class PlayerController : MonoBehaviour
         thirdPersonCamera = Helper.FindChild(cameraContainer.transform, "ThirdPersonCamera").GetComponent<Camera>();
         firstPersonCamera.gameObject.SetActive(true);   // 1인칭 시작
         thirdPersonCamera.gameObject.SetActive(false);
+
+        // "Rock" 레이어의 LayerMask를 가져온다
+        wallLayer = LayerMask.GetMask("Rock");
+        raycastDistance = 1f;
     }
     // 물리연산은 FixedUpdate에서 호출
     void FixedUpdate()
     {
+        CheckWall();
         Move();
+
+        // 벽에 붙은 채로 입력이 없는 경우 벽 타기 애니메이션 일시 정지
+        if (isClimbing && curMovementInput.magnitude == 0)
+        {
+            playerAnimator.speed = 0; // 애니메이션 일시 정지
+        }
+        else
+        {
+            playerAnimator.speed = 1; // 애니메이션 재개
+        }
     }
     // 카메라연산은 LateUpdate에서 호출
     private void LateUpdate()
     {
+
         if (canLock)
         {
             CameraLook();
         }
     }
+    void CheckWall()
+    {
+        // Raycast를 사용하여 벽 감지
+        RaycastHit hit;
+        isNearWall = Helper.Raycast(transform.position, transform.forward, out hit, raycastDistance, wallLayer);
+
+        if (isNearWall && hit.collider.CompareTag("Rock"))
+        {
+            // 벽이 감지되었을 때 추가 로직 처리
+            rockNormal = hit.normal;    // Raycast로 얻은 법선 벡터 사용
+
+            // 벽에 접근하면 벽 타기 상태로 전환
+            if (Input.GetKey(KeyCode.W))
+            {
+                isClimbing = true;
+                playerAnimator.SetBool("Climbing", true);
+                _rigidbody.useGravity = false;
+            }
+        }
+        else
+        {
+            isNearWall = false;
+
+            // 벽에서 멀어지면 벽 타기 종료
+            if (isClimbing)
+            {
+                isClimbing = false;
+                playerAnimator.SetBool("Climbing", false);
+                _rigidbody.useGravity = true;
+            }
+        }
+
+        if (isClimbing)
+        {
+            // 벽 타기 중일 때의 물리적 처리
+            _rigidbody.useGravity = false;
+
+            /// 벽 쪽으로 밀어주는 힘 추가 (벽에서 떨어지지 않도록)
+            _rigidbody.AddForce(-rockNormal * 10f, ForceMode.Force);
+        }
+        else
+        {
+            _rigidbody.useGravity = true;
+        }
+
+    }
+
     // 실제 이동
     void Move()
     {
@@ -88,13 +156,12 @@ public class PlayerController : MonoBehaviour
         {
             // 벽의 오른쪽 방향 (표면 평행)
             Vector3 wallRight = Vector3.Cross(rockNormal, Vector3.up).normalized;
-
             // 벽의 위쪽 방향 (표면 평행)
             Vector3 wallUp = Vector3.Cross(wallRight, rockNormal).normalized;
-
             // 입력 조합 (A/D = 좌우, W/S = 상하)
             Vector3 moveDirection = (wallRight * curMovementInput.x) + (wallUp * curMovementInput.y);
             moveDirection *= moveSpeed;
+
 
             _rigidbody.velocity = moveDirection;  // 클라이밍 중 이동 적용
         }
@@ -122,7 +189,7 @@ public class PlayerController : MonoBehaviour
     // 입력 이벤트 처리
     public void OnMove(InputAction.CallbackContext context)
     {
-        
+
         // S키가 눌렸다면 뒤로 바라본다
         Vector2 moveInput = context.ReadValue<Vector2>();
         Vector3 moveDirection = new Vector3(moveInput.x, 0, moveInput.y);
@@ -222,36 +289,5 @@ public class PlayerController : MonoBehaviour
 
         // 상태 토글
         isThirdPerson = !isThirdPerson;
-    }
-    // Rock에 닿으면 애니메이션 바꾸고 벽타기 시작
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Rock"))
-        {
-            isClimbing = true;
-            playerAnimator.SetBool("Climbing", true);
-            _rigidbody.useGravity = false;
-            _rigidbody.velocity = Vector3.zero; // 기존 운동량 제거
-        }
-    }
-    // 벽타기 진행중
-    private void OnCollisionStay(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Rock") && isClimbing)
-        {
-            // 충돌한 표면의 법선 벡터를 얻는다
-            rockNormal = collision.contacts[0].normal;
-
-        }
-    }
-    // 벽타기 끝
-    private void OnCollisionExit(Collision collision)
-    {
-        if (!collision.gameObject.CompareTag("Rock"))
-        {
-            isClimbing = false;
-            playerAnimator.SetBool("Climbing", false);
-            _rigidbody.useGravity = true;
-        }
     }
 }

@@ -60,6 +60,10 @@ public class Helper
         }
         return 0f;
     }
-
+    // Raycast
+    public static bool Raycast(Vector3 origin, Vector3 direction, out RaycastHit hit, float maxDistance, LayerMask layerMask)
+    {
+        return Physics.Raycast(origin, direction, out hit, maxDistance, layerMask);
+    }
 
 }
