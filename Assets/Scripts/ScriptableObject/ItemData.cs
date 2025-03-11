@@ -12,8 +12,10 @@ public enum ItemType
 
 public enum ConsumableType  // 섭취가능한 아이템의 구분
 {
-    Hunger, // 체력회복
-    Health  // 배고픔회복
+    Health, // 체력회복
+    Hunger, // 배고픔회복
+    Speed,   // 속도증가
+    Invincible  // 무적상태
 }
 
 [System.Serializable]
@@ -21,6 +23,7 @@ public class ItemDataConsumable
 {
     public ConsumableType type;
     public float value; // 회복량
+    public float time;  // 지속시간(있는 경우)
 }
 
 [CreateAssetMenu(fileName = "Item", menuName = "New Item")]
