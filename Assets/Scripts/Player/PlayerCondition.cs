@@ -24,7 +24,12 @@ public class PlayerCondition : MonoBehaviour, IDamagable
     public event Action onTakeDamage;   // hp 감소시 화면 깜빡임을 받을 delegate
     // DamageIndicator에서 PlayerCondition에 접근하여 onTakeDamage에 등록
 
-
+    private void Start()
+    {
+        // uiCondition은 UIManager의 자식인 Canvas가 가지고 있는데
+        // UIManager가 DontDestroyOnLoad이다
+        uiCondition = Helper.FindObjAnywhere("Canvas").GetComponent<UICondition>();
+    }
 
     // hunger를 지속적으로 내린다
     void Update()

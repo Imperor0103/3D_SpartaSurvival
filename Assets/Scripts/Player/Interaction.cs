@@ -106,7 +106,7 @@ public class Interaction : MonoBehaviour
     // E키 눌렀을 때 상호작용
     public void OnInteractInput(InputAction.CallbackContext context)
     {
-        /// E를 눌렀을 때, aim이 아이템을 바라보고 있을 때(인터페이스로 캐싱하고 있는 정보가 있을 때)
+        /// E를 눌렀을 때, aim이 아이템을 바라보고 있을 때(인 터페이스로 캐싱하고 있는 정보가 있을 때)
         if (context.phase == InputActionPhase.Started && curInteractable != null)
         {
             curInteractable.OnInteract();   // 상호작용 끝나고 인벤토리로 이동한 아이템은 Destroy까지 해준다
