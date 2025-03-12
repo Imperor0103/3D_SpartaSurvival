@@ -48,7 +48,7 @@ public class PlayerController : MonoBehaviour
     // 즉, CursorMode.Locked 상태(커서가 화면 중앙에 고정)으로 실행
     // 이때 canLock을 true로 한다
 
-    public Action inventory;    // 인벤토리 열고 닫을때 Toggle 메서드를 담아서 실행
+    public Action inventoryAction;    // 인벤토리 열고 닫을때 Toggle 메서드를 담아서 실행
 
     public Rigidbody _rigidbody;
     private void Awake()
@@ -258,7 +258,7 @@ public class PlayerController : MonoBehaviour
             if (context.phase == InputActionPhase.Started && !GameManager.Instance.isGameOver)
             {
                 /// UIInventory의 Toggle 메서드를 사용하기 위해 delegate를 사용
-                inventory?.Invoke();    // delegate에 Toggle 메서드가 있으면 호출
+                inventoryAction?.Invoke();    // delegate에 Toggle 메서드가 있으면 호출
                 ToggleCursor();
             }
         }

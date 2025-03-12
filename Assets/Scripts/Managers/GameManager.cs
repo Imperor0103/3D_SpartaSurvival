@@ -51,7 +51,7 @@ public class GameManager : Singleton<GameManager>
         UIManager.Instance.inventory.ClearInventory();  // 비우고
         UIManager.Instance.inventory.gameObject.SetActive(true);    // 활성화
         // 인벤토리 여닫는 Toggle 메서드를 Action에 연결
-        CharacterManager.Instance.Player.controller.inventory += UIManager.Instance.inventory.Toggle;
+        CharacterManager.Instance.Player.controller.inventoryAction += UIManager.Instance.inventory.Toggle;
         UIManager.Instance.inventory.inventoryWindow.SetActive(false);
 
 
