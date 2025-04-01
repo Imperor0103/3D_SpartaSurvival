@@ -42,36 +42,38 @@ public class PlayerController : MonoBehaviour
     private bool isThirdPerson;     // 현재 카메라가 3인칭인지 여부
 
 
+    public GameManager gameManager;
+
     // UI 관련
     public bool canLock = true;
     // 처음에는 인벤토리 창을 비활성화한 상태로 시작한다
     // 즉, CursorMode.Locked 상태(커서가 화면 중앙에 고정)으로 실행
     // 이때 canLock을 true로 한다
 
-    public Action inventory;    // 인벤토리 열고 닫을때 Toggle 메서드를 담아서 실행
+    public Action inventoryAction;    // 인벤토리 열고 닫을때 Toggle 메서드를 담아서 실행
 
     public Rigidbody _rigidbody;
     private void Awake()
     {
-        _rigidbody = GetComponent<Rigidbody>();
+        //_rigidbody = GetComponent<Rigidbody>();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        playerAnimator = GetComponent<Animator>();
+        //playerAnimator = GetComponent<Animator>();
         Cursor.lockState = CursorLockMode.Locked;   // 게임 시작 중에 마우스 커서 안보이게
 
         isClimbing = false;
         isMovingBackward = false;
         isThirdPerson = false;
         // 캐싱
-        cameraContainer = Helper.FindChild(gameObject.transform, "CameraController");
+        //cameraContainer = Helper.FindChild(gameObject.transform, "CameraController");
         clipLength = Helper.GetAnimationClipLength(playerAnimator, "PlayerMeleeAttack");
-        firstPersonCamera = Helper.FindChild(cameraContainer.transform, "MainCamera").GetComponent<Camera>();
-        thirdPersonCamera = Helper.FindChild(cameraContainer.transform, "ThirdPersonCamera").GetComponent<Camera>();
-        firstPersonCamera.gameObject.SetActive(true);   // 1인칭 시작
-        thirdPersonCamera.gameObject.SetActive(false);
+        //firstPersonCamera = Helper.FindChild(cameraContainer.transform, "MainCamera").GetComponent<Camera>();
+        //thirdPersonCamera = Helper.FindChild(cameraContainer.transform, "ThirdPersonCamera").GetComponent<Camera>();
+        //firstPersonCamera.gameObject.SetActive(true);   // 1인칭 시작
+        //thirdPersonCamera.gameObject.SetActive(false);
 
         // "Rock" 레이어의 LayerMask를 가져온다
         wallLayer = LayerMask.GetMask("Rock");
@@ -173,7 +175,8 @@ public class PlayerController : MonoBehaviour
     // 카메라 회전
     void CameraLook()
     {
-        if (!GameManager.Instance.isGameOver)
+        //if (!GameManager.Instance.isGameOver)
+        if (!gameManager.isGameOver)
         {
             // 카메라 상하 회전
             camCurXRot += mouseDelta.y * lookSensitivity;   /// 상하회전을 하기 위해서는 y값을 x에 넣는다
@@ -188,7 +191,8 @@ public class PlayerController : MonoBehaviour
     // 입력 이벤트 처리
     public void OnMove(InputAction.CallbackContext context)
     {
-        if (!GameManager.Instance.isGameOver)
+        //if (!GameManager.Instance.isGameOver)
+        if (!gameManager.isGameOver)
         {
             // S키가 눌렸다면 뒤로 바라본다
             Vector2 moveInput = context.ReadValue<Vector2>();
@@ -210,12 +214,14 @@ public class PlayerController : MonoBehaviour
     }
     public void OnLook(InputAction.CallbackContext context)
     {
-        if (!GameManager.Instance.isGameOver)
+        //if (!GameManager.Instance.isGameOver)
+        if (!gameManager.isGameOver)
             mouseDelta = context.ReadValue<Vector2>();  // 마우스 값은 입력하지 않아도 계속 유지된다
     }
     public void OnJump(InputAction.CallbackContext context)
     {
-        if (!GameManager.Instance.isGameOver)
+        //if (!GameManager.Instance.isGameOver)
+        if (!gameManager.isGameOver)
         {
             if (context.phase == InputActionPhase.Started && IsGrounded())  // 키 누르기 시작할때
             {
@@ -253,12 +259,14 @@ public class PlayerController : MonoBehaviour
     // tab키 누르면 열린다
     public void OnInventory(InputAction.CallbackContext context)
     {
-        if (!GameManager.Instance.isGameOver)
+        //if (!GameManager.Instance.isGameOver)
+        if (!gameManager.isGameOver)
         {
-            if (context.phase == InputActionPhase.Started && !GameManager.Instance.isGameOver)
+            //if (context.phase == InputActionPhase.Started && !GameManager.Instance.isGameOver)
+            if (context.phase == InputActionPhase.Started && !gameManager.isGameOver)
             {
                 /// UIInventory의 Toggle 메서드를 사용하기 위해 delegate를 사용
-                inventory?.Invoke();    // delegate에 Toggle 메서드가 있으면 호출
+                inventoryAction?.Invoke();    // delegate에 Toggle 메서드가 있으면 호출
                 ToggleCursor();
             }
         }
@@ -282,7 +290,8 @@ public class PlayerController : MonoBehaviour
     // v 키 누르면 카메라 교체
     public void OnCamChange(InputAction.CallbackContext context)
     {
-        if (!GameManager.Instance.isGameOver)
+        //if (!GameManager.Instance.isGameOver)
+        if (!gameManager.isGameOver)
         {
             if (isThirdPerson)
             {

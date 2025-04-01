@@ -27,7 +27,7 @@ public class Player : MonoBehaviour
         condition = GetComponent<PlayerCondition>();
         equip = GetComponent<Equipment>();
 
-        dropPosition = Helper.FindChild(gameObject.transform, "DropPosition");
+        //dropPosition = Helper.FindChild(gameObject.transform, "DropPosition");
     }
 
 }

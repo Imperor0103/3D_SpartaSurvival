@@ -14,32 +14,32 @@ public class UIGameOver : MonoBehaviour
     void Start()
     {
         // 버튼 연결(게임오버 UI가 활성화될 때 Start가 호출되면서 연결된다)
-        restartButton = Helper.FindChild(gameObject.transform, "RestartButton").GetComponent<Button>();
-        exitButton = Helper.FindChild(gameObject.transform, "ExitButton").GetComponent<Button>();
+        //restartButton = Helper.FindChild(gameObject.transform, "RestartButton").GetComponent<Button>();
+        //exitButton = Helper.FindChild(gameObject.transform, "ExitButton").GetComponent<Button>();
 
         // 이벤트 메서드 연결
-        restartButton.onClick.AddListener(() =>
-        {
-            try
-            {
-                UIManager.Instance.OnClickRestart();
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("Exception in OnClickRestart: " + e.Message);
-            }
-        });
+        //restartButton.onClick.AddListener(() =>
+        //{
+        //    try
+        //    {
+        //        UIManager.Instance.OnClickRestart();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Debug.LogError("Exception in OnClickRestart: " + e.Message);
+        //    }
+        //});
 
-        exitButton.onClick.AddListener(() =>
-        {
-            try
-            {
-                UIManager.Instance.OnClickExit();
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("Exception in OnClickExit: " + e.Message);
-            }
-        });
+        //exitButton.onClick.AddListener(() =>
+        //{
+        //    try
+        //    {
+        //        UIManager.Instance.OnClickExit();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Debug.LogError("Exception in OnClickExit: " + e.Message);
+        //    }
+        //});
     }
 }

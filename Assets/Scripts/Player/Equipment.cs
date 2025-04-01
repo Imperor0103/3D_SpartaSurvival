@@ -10,16 +10,18 @@ public class Equipment : MonoBehaviour
     public Transform equipParent;   // 장비를 달아줄 위치: 오른팔
 
     // 
-    private PlayerController controller;
-    private PlayerCondition condition;
+    //private PlayerController controller;
+    public PlayerController controller;
+    //private PlayerCondition condition;
+    public PlayerCondition condition;
 
     void Start()
     {
         // 캐싱
-        controller = CharacterManager.Instance.Player.controller;
-        condition = CharacterManager.Instance.Player.condition;
-        // 장착위치를 찾아서 저장한다
-        equipParent = Helper.FindChild(gameObject.transform, "thumb_r_3");
+        //controller = CharacterManager.Instance.Player.controller;
+        //condition = CharacterManager.Instance.Player.condition;
+        //// 장착위치를 찾아서 저장한다
+        //equipParent = Helper.FindChild(gameObject.transform, "thumb_r_3");
     }
 
     // 장착

@@ -22,7 +22,10 @@ public class PlayerCondition : MonoBehaviour, IDamagable
     public float noHungerHealthDecay;   // hunger가 0이 되면 체력 감소가 시작
 
     public event Action onTakeDamage;   // hp 감소시 화면 깜빡임을 받을 delegate
-    // DamageIndicator에서 PlayerCondition에 접근하여 onTakeDamage에 등록
+                                        // DamageIndicator에서 PlayerCondition에 접근하여 onTakeDamage에 등록
+
+    public GameManager gameManager;
+
 
     private void Start()
     {
@@ -89,7 +92,8 @@ public class PlayerCondition : MonoBehaviour, IDamagable
     {
         Debug.Log("죽었다");
         // GameOverUI 띄워야한다
-        GameManager.Instance.GameOver();
+        //GameManager.Instance.GameOver();
+        gameManager.GameOver();
     }
 
     public void TakePhysicalDamage(float damage)

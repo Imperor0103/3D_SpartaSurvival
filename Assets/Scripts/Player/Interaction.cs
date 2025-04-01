@@ -30,10 +30,10 @@ public class Interaction : MonoBehaviour
         // 하이러키에서 둘의 공통부모는 Scene 뿐인데, 그러면 Scene을 가져와서 그 자식중에서 찾아야하나?
         // 매니저에 DontDestroyOnLoad가 설정되어있어서 아래의 방식으로 찾을 수 없게 되었다
         //promptText = Helper.FindObjectInScene("PromptText").GetComponent<TextMeshProUGUI>();
-        promptText = Helper.FindObjAnywhere("PromptText").GetComponent<TextMeshProUGUI>();
+        //promptText = Helper.FindObjAnywhere("PromptText").GetComponent<TextMeshProUGUI>();
 
         /// layerMask에 추가
-        layerMask = LayerMask.GetMask("Interactable", "JumpPlatform", "Door");
+        //layerMask = LayerMask.GetMask("Interactable", "JumpPlatform", "Door");
     }
 
     // Update is called once per frame
